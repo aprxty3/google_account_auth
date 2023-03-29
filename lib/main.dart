@@ -23,6 +23,15 @@ class AuthPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Placeholder();
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Google Account Auth'),
+      ),
+      body: Center(
+        child: Container(
+          child: Text('Sign in with Google'),
+        ),
+      ),
+    );
   }
 }
