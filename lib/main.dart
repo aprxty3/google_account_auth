@@ -18,20 +18,59 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class AuthPage extends StatelessWidget {
+class AuthPage extends StatefulWidget {
   const AuthPage({super.key});
+
+  @override
+  State<AuthPage> createState() => _AuthPageState();
+}
+
+class _AuthPageState extends State<AuthPage> {
+  GoogleSignInAccount? currentUser;
+  Future<void> _handleSignIn() async {
+    try {
+      await _googleSignIn.signIn();
+    } catch (error) {
+      print(error);
+    }
+  }
+
+  @override
+  void initState() {
+    _googleSignIn.onCurrentUserChanged.listen((event) {
+      setState(() {
+        currentUser = event;
+      });
+    });
+    _googleSignIn.signInSilently();
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Google Account Auth'),
+        title: Text(currentUser != null ? 'Dashboard' : 'Login'),
       ),
-      body: Center(
-        child: Container(
-          child: Text('Sign in with Google'),
-        ),
-      ),
+      body: currentUser != null
+          ? ListTile(
+              leading: GoogleUserCircleAvatar(
+                identity: currentUser!,
+              ),
+              title: Text(currentUser!.displayName ?? ''),
+              subtitle: Text(currentUser!.email),
+              trailing: IconButton(
+                onPressed: () async => await _googleSignIn.disconnect(),
+                icon: Icon(Icons.logout),
+              ),
+            )
+          : Container(
+              alignment: Alignment.center,
+              child: ElevatedButton(
+                onPressed: _handleSignIn,
+                child: Text('Sign in with Google'),
+              ),
+            ),
     );
   }
 }
